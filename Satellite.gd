@@ -38,7 +38,31 @@ func _process(delta : float) -> void:
 		#In all cases, set our global position to the slerp between start and
 		#target points, which is what the above code is enforcing with the
 		#parameters.
-		self.global_position = slerp(start_point, target_point, t)
+		
+		## Classic lerp
+		#var new_pos = lerp(start_point, target_point, t)
+		
+		## Classic slerp
+		#var new_pos = slerp(start_point, target_point, t)
+		
+		## Newfangled "flerp" — or /function/ linear interpolation, for a sphere
+		#var new_pos = flerp(start_point, target_point, \
+			#func(f : float, n : float):
+				#return sin(f * n)/sin(n)
+				#,
+			#t,
+			#acos(start_point.normalized().dot(target_point.normalized()))
+			#)
+			
+		var new_pos = flerp(start_point, target_point, \
+			func(f : float, n : float):
+				return (1.0 + 0.5 * sin(f * PI)) * sin(f * n)/sin(n)
+				,
+			t,
+			acos(start_point.normalized().dot(target_point.normalized()))
+			)
+		print(new_pos)
+		self.global_position = new_pos
 
 # Ye Olde Slerp
 func slerp(p0 : Vector3, p1 : Vector3, t_ : float) -> Vector3:
@@ -48,3 +72,12 @@ func slerp(p0 : Vector3, p1 : Vector3, t_ : float) -> Vector3:
 		(sin((1.0 - t_) * omega) * p0 + \
 		sin(t_ * omega) * p1) \
 		/ sin(omega)
+
+# For flerp, f should take a floating point progress value and a normalization 
+# to divide by. It should be constrained so that it is always at p0 at t_ == 0,
+# and p1 at t_ == 1; but it can behave as it pleases between the two. Otherwise,
+# you will get a nonsensical and often unusable result.
+func flerp(p0 : Vector3, p1 : Vector3, f : Callable, t_ : float, n : float) -> Vector3:
+	return \
+		f.call((1.0 - t_), n) * p0 + \
+		f.call(t_, n) * p1

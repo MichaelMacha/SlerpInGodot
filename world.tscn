@@ -16,6 +16,8 @@ glow_enabled = true
 glow_bloom = 0.21
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_71v7j"]
+transparency = 1
+albedo_color = Color(1, 1, 1, 0.72549)
 albedo_texture = ExtResource("2_4ui2a")
 
 [sub_resource type="SphereMesh" id="SphereMesh_qvnbr"]
